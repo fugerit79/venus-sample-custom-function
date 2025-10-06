@@ -48,6 +48,10 @@
                     load-bundled-functions="true"
             />
         </chainStep>
+        <!-- adding quenya translate function to shared chain -->
+        <chainStep stepType="function">
+            <function name="quenyaFun" value="org.fugerit.java.demo.venussamplecustomfunction.fun.QuenyaFun"/>
+        </chainStep>
     </docChain>
 
     <!-- example document chain xml -->

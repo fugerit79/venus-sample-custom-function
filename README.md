@@ -1,5 +1,97 @@
 # venus-sample-custom-function
 
+We will create a simple custom function to translate words from english to Quenya (if a translation is available).
+
+[![Keep a Changelog v1.1.0 badge](https://img.shields.io/badge/changelog-Keep%20a%20Changelog%20v1.1.0-%23E05735)](CHANGELOG.md)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fugerit79_venus-sample-custom-function&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=fugerit79_venus-sample-custom-function)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fugerit79_venus-sample-custom-function&metric=coverage)](https://sonarcloud.io/summary/new_code?id=fugerit79_venus-sample-custom-function)
+[![License: MIT](https://img.shields.io/badge/License-MIT-teal.svg)](https://opensource.org/licenses/MIT)
+[![code of conduct](https://img.shields.io/badge/conduct-Contributor%20Covenant-purple.svg)](https://github.com/fugerit-org/fj-universe/blob/main/CODE_OF_CONDUCT.md)
+
+This project is part of a series of mini tutorial on [Venus Fugerit Doc](https://github.com/fugerit-org/fj-doc),
+here you can find the [other tutorials](https://github.com/fugerit79/venus-sample-index).
+
+## Key modifications
+
+1. Create our custom function (refer to [Apache FreeMarker documentation](https://freemarker.apache.org/docs/pgui_datamodel_method.html)).
+
+```java
+package org.fugerit.java.demo.venussamplecustomfunction.fun;
+
+import freemarker.template.SimpleScalar;
+import freemarker.template.TemplateMethodModelEx;
+import freemarker.template.TemplateModelException;
+import org.fugerit.java.core.util.PropsIO;
+import org.fugerit.java.doc.freemarker.fun.FMFunHelper;
+
+import java.util.List;
+import java.util.Properties;
+
+/*
+ * Translate a word to Quenya if available, return the same word otherwise
+ *
+ * Quenya is the language spoken by the high elves in J.R.R. Tolkien's world (https://lotr.fandom.com/wiki/Quenya).
+ */
+public class QuenyaFun implements TemplateMethodModelEx {
+
+    private static final Properties QUENYA = PropsIO.loadFromClassLoaderSafe( "config/quenya.properties" );
+
+    @Override
+    public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
+        FMFunHelper.checkParameterNumber( arguments, 1 );
+        String wordToTranslate = arguments.get( 0 ).toString();
+        // if not found, default to the input word
+        String output = QUENYA.getProperty( wordToTranslate, wordToTranslate );
+        return new SimpleScalar(output);
+    }
+
+}
+```
+
+and the [config/quenya.properties](src/main/resources/config/quenya.properties) file with words translations.
+
+2. Add a config step to initialize one or more functions : 
+
+```xml
+<!-- adding quenya translate function to shared chain -->
+<chainStep stepType="function">
+    <function name="quenyaFun" value="org.fugerit.java.demo.venussamplecustomfunction.fun.QuenyaFun"/>
+</chainStep>
+```
+
+3. Use the new function in [document.ftl](src/main/resources/venus-sample-custom-function/template/document.ftl) template : 
+
+```ftl
+<#-- using quenyaFun to translate title to Quenya if available -->
+<cell><para>${quenyaFun(current.title)}</para></cell>
+```
+
+For instance, result in MarkDown format will be : 
+
+```md
+My sample title XML  
+
+
+| Name | Surname | Title  |
+|---------------|---------------|---------------|
+| Luthien | Tinuviel | Tári  |
+| Thorin | Oakshield | Aran  |
+```
+
+## Original project README
+
+Here starts the original project readme as created by command :
+
+```shell
+mvn org.fugerit.java:fj-doc-maven-plugin:8.16.9:init \
+-DgroupId=org.fugerit.java.demo \
+-DartifactId=venus-sample-custom-function \
+-Dextensions=base,freemarker,mod-fop \
+-DaddJacoco=true \
+-DprojectVersion=1.0.0 \
+-Dflavour=quarkus-3
+```
+
 ## Quickstart
 
 Requirement :

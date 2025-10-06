@@ -47,7 +47,8 @@
                 <row>
                     <cell><para>${current.name}</para></cell>
                     <cell><para>${current.surname}</para></cell>
-                    <cell><para>${current.title}</para></cell>
+                    <#-- using quenyaFun to translate title to Quenya if available -->
+                    <cell><para>${quenyaFun(current.title)}</para></cell>
                 </row>
             </#list>
         </#if>
